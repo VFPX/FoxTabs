@@ -1,0 +1,62 @@
+Version=  1.20
+Author=Scott Scovell
+Company=
+Address=
+City=
+State=
+Zip=
+Country=
+SaveCode=.T.
+Debug=.T.
+Encrypt=.F.
+NoLogo=.F.
+CommentStyle=1
+Comments=
+CompanyName=
+FileDescription=
+LegalCopyright=
+LegalTrademarks=
+ProductName=
+Major=0
+Minor=2
+Revision=0
+AutoIncrement=.F.
+[OLEServers]
+[OLEServersEnd]
+[ProjectFiles]
+ 857389769,P,foxtabsmanager.prg,.F.,.F.,1252,,,
+ 857389775,T,foxtabs.h,.F.,.F.,1252,,,
+ 857389802,V,foxtabs.vcx,.F.,.F.,1252,,,
+ 857390949,P,foxtabsapplication.prg,.F.,.T.,1252,,,
+ 859154870,V,foxtabsimages.vcx,.F.,.F.,1252,,,
+ 859159351,x,images\tabstyles\tabimage.left.gif,.F.,.F.,1252,,,
+ 859159351,x,images\icons\desktop.png,.F.,.F.,1252,,,
+ 859159351,x,images\tabstyles\tabimage.body.gif,.F.,.F.,1252,,,
+ 859159351,x,images\tabstyles\tabimage.right.1.gif,.F.,.F.,1252,,,
+ 859159351,x,images\tabstyles\tabimage.right.2.gif,.F.,.F.,1252,,,
+ 859159351,x,images\icons\program.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\class.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\cursor.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\custom.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\project.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\vfp.gif,.F.,.F.,1252,,,
+ 859159351,x,images\icons\database.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\form.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\formset.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\library.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\menu.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\report.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\scrap.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\solution.gif,.F.,.F.,1252,,,
+ 859159351,x,images\icons\table.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\websvc.bmp,.F.,.F.,1252,,,
+ 859159351,x,images\icons\xml.gif,.F.,.F.,1252,,,
+ 859159351,x,images\icons\xsl.gif,.F.,.F.,1252,,,
+ 859178379,x,images\window_gear.png,.F.,.F.,1252,,,
+ 859338418,V,..\applicationblocks\configuration\configurationblock.vcx,.F.,.F.,0,,,
+ 861385476,P,..\applicationblocks\common\foxresource.prg,.F.,.F.,1252,,,
+ 861667643,x,images\folder_time.png,.F.,.F.,1252,,,
+1015388914,P,bindwinevent.prg,.F.,.F.,1252,,,
+1015388914,P,unbindwinevents.prg,.F.,.F.,1252,,,
+1015388936,P,vfpxwin32eventhandler.prg,.F.,.F.,1252,,,
+[EOF]

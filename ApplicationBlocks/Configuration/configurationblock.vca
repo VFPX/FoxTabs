@@ -1,0 +1,324 @@
+SccTextX Version 1.0.0.1
+PLATFORM C(8,0),UNIQUEID C(10,0),TIMESTAMP N(10,0),CLASS M(4,0),CLASSLOC M(4,0),BASECLASS M(4,0),OBJNAME M(4,0),PARENT M(4,0),PROPERTIES M(4,0),PROTECTED M(4,0),METHODS M(4,0),OBJCODE M(4,0),OLE M(4,0),OLE2 M(4,0),RESERVED1 M(4,0),RESERVED2 M(4,0),RESERVED3 M(4,0),RESERVED4 M(4,0),RESERVED5 M(4,0),RESERVED6 M(4,0),RESERVED7 M(4,0),RESERVED8 M(4,0),USER M(4,0)
+1252
+
+[ RECORD]
+[PLATFORM] COMMENT 
+[UNIQUEID] Class     
+[START RESERVED1]
+VERSION =   3.00[END RESERVED1]
+
+[ RECORD]
+[PLATFORM] WINDOWS 
+[UNIQUEID] _1ME0VHWJ2
+[CLASS] collection
+[BASECLASS] collection
+[OBJNAME] configurationblock
+[START PROPERTIES]
+Name = "configurationblock"
+appsettingsversion = .F.
+checkappsettingsversion = .F.
+configfile = .F.
+ixmldomelement = .NULL.
+[END PROPERTIES]
+[START METHODS]
+PROCEDURE Destroy
+* Save the configuration
+This.SaveConfig()
+
+* Remove setting objects from the collection
+Do While This.Count > 0
+	This.Remove(1)
+EndDo 
+
+ENDPROC
+PROCEDURE createsettingobject
+Lparameters lpcSectionName As String, lpcSettingName As String, lpcSettingValue As String
+
+Local oSetting As Empty
+
+* [TODO] Create interface class
+
+* Create an instance of the Empty class
+oSetting = NewObject("Empty")
+
+* Add class properties
+AddProperty(oSetting, "Section", lpcSectionName)
+AddProperty(oSetting, "Name", lpcSettingName)
+AddProperty(oSetting, "Value", lpcSettingValue)
+AddProperty(oSetting, "Key", lpcSectionName + "." + lpcSettingName)
+AddProperty(oSetting, "XPath", "//" + lpcSectionName + "/" + lpcSettingName)
+
+* Return setting object to caller
+Return oSetting	
+
+ENDPROC
+PROCEDURE createxmldom
+
+Local oXmlDom As Msxml2.DOMDocument
+
+* Create a new instance of the Msxml DOM parser
+oXmlDom = NewObject("Msxml2.DomDocument.4.0")
+
+Return oXmlDom
+
+ENDPROC
+PROCEDURE getdefaultsettings
+* GetDefaultSettings
+*
+* Returns the default xml settings string for the given confgiuration section
+*
+* Configuration Sections
+*		Logging		- Exception and event logging settings
+*		AppSettings	- User application settings
+*		Providers	- Common provider settings
+*
+* When overriding this method, be sure to handle each section case.
+* Use Return DoDefault(lpcSection) when no inherited case exists.
+*
+Lparameters lpcSection As String
+
+Local lcDefaultSettings 
+
+Do Case
+	Case lpcSection = "Logging"
+		* Define the default logging settings
+		Text To lcDefaultSettings NoShow PreText 1+2+4
+			<ExceptionLogProvider>DefaultLogProvider</ExceptionLogProvider>
+			<EventLogProvider>DefaultLogProvider</EventLogProvider>
+		EndText 
+	
+	Case lpcSection = "AppSettings"
+		lcDefaultSettings = ""
+	
+	Case lpcSection = "Providers"
+		* [TODO] Define the default provider settings
+		Text To lcDefaultSettings NoShow PreText 1+2+4
+			<DefaultLogProvider>
+				<Type>TextFileProvider</Type>
+				<Filename></Filename>
+			</DefaultLogProvider>
+		EndText 
+	
+	Otherwise
+		lcDefaultSettings = ""
+		
+EndCase
+
+* Return default xml settings string
+Return lcDefaultSettings 
+ENDPROC
+PROCEDURE isvalid
+* Check the loaded configuration file is valid
+* [TODO] Implement optional schema validation
+
+Local oSettingsNode As Msxml2.IXMLDOMNode
+Local lbIsValid As Boolean, lcAppSettingsVersion As String
+lbIsValid = .T.
+
+* Check the AppSettings version if required
+If This.CheckAppSettingsVersion And Not Empty(This.AppSettingsVersion)
+	
+	* Gather AppSettings version from config file
+	oSettingsNode = This.IXMLDOMElement.selectSingleNode("//AppSettings")
+	If IsNull(oSettingsNode)
+		Return .F.
+	EndIf 
+	
+	* Obtain a reference to the version attribute
+	lcAppSettingsVersion = oSettingsNode.getAttribute("version")
+	If Empty(Nvl(lcAppSettingsVersion, ""))
+		Return .F.
+	EndIf
+	
+	* Check this against the class property
+	lbIsValid = ( This.AppSettingsVersion == lcAppSettingsVersion )
+	
+EndIf
+
+Return lbIsValid
+
+
+	
+
+
+ENDPROC
+PROCEDURE loadconfig
+Lparameters lpcConfigFile As String
+
+Local oSectionNode As Msxml2.IXMLDOMNode 
+	
+* Check if a config file was passed
+If Empty(lpcConfigFile)
+	* Derive the config file from the running application
+	lpcConfigFile = ForceExt(Sys(16, 0), "config")
+EndIf
+
+* Set class property
+This.ConfigFile = lpcConfigFile 
+
+* Check if we need to create a default config file
+If Not File(lpcConfigFile) ;		&& Check if the file exists
+	Or Not This.LoadXml() ;			&& Check the file loads into the dom
+	Or Not This.IsValid()			&& Check the file content is valid
+
+	* Create a new default config file
+	This.SetDefaultFile()
+
+	* Load the config file into the dom
+	This.LoadXml()
+
+EndIf 
+
+* Clear any existing settings
+Do While This.Count > 0
+	This.Remove(1)
+EndDo
+
+* Load each configuration section
+For Each oSectionNode In This.IXMLDOMElement.documentElement.childNodes 
+	This.LoadSection(oSectionNode)
+Next 
+
+Return
+
+ENDPROC
+PROCEDURE loadsection
+Lparameters oSectionNode As Msxml2.IXMLDOMNode
+
+Local oSettingNode As Msxml2.IXMLDOMElement, oSetting As Object
+Local lcSectionName As String, lcSettingName As String, lcSettingValue As String
+
+* Determine the configuration section name
+lcSectionName = Trim(oSectionNode.nodeName)
+
+* Loop through each setting in the passed section
+For Each oSettingNode In oSectionNode.childNodes 
+	
+	* Create an instance of our configuration setting class
+	oSetting = This.CreateSettingObject(lcSectionName, Trim(oSettingNode.nodeName), oSettingNode.text)
+
+	* Add them to the configuration collection
+	This.Add(oSetting, oSetting.Key)			
+	
+Next 
+
+Return	
+
+ENDPROC
+PROCEDURE loadxml
+
+Local oXmlDom As Msxml2.DOMDocument
+
+* Create a new instance of the Msxml DOM parser
+oXmlDom = This.CreateXmlDom()
+oXmlDom.async = .F.
+oXmlDom.load(This.ConfigFile)
+
+* Check for success
+If Not Empty(oXmlDom.parseError.errorCode)
+	* Raise an exception
+	Error "Failed to load configuration file " + Transform(This.ConfigFile)
+	Return .F.
+EndIf 
+
+* Set class property for later use
+This.IXMLDOMElement = oXmlDom
+
+Return
+
+ENDPROC
+PROCEDURE saveconfig
+
+Local oXmlDoc As Msxml2.DOMDocument, oSettingsNode As Msxml2.IXMLDOMNode, oSectionNode As Msxml2.IXMLDOMNode 
+Local oSetting As Object
+
+* Obtain a reference to the msxml dom for ease of use
+oXmlDoc = This.IXMLDOMElement 
+
+* Read configuration collection
+For Each oSetting In This
+
+	* Obtain a reference to the setting node in the config document
+	oSettingsNode = oXmlDoc.selectSingleNode(oSetting.XPath)
+	If Not IsNull(oSettingsNode)
+		* Update the value
+		oSettingsNode.text = oSetting.Value	
+	Else
+		* Create new settings node and set value
+		oSettingsNode = oXmlDoc.createElement(JustStem(oSetting.XPath))	
+		oSettingsNode.text = oSetting.Value	
+		
+		* Add settings node to section parent node
+		oSectionNode = oXmlDoc.selectSingleNode(JustPath(oSetting.XPath))
+		If Not IsNull(oSectionNode)
+			oSectionNode.appendChild(oSettingsNode)
+		EndIf 			
+
+	EndIf 
+				
+Next 
+
+* Save the xml configuration document to disk
+oXmlDoc.Save(This.ConfigFile)
+
+Return
+
+ENDPROC
+PROCEDURE setdefaultfile
+
+Local lcXmlConfig As String, lcLogging As String, lcAppSettings As String, lcProviders As String
+
+* Gather default settings for each section.
+lcLogging		= This.getDefaultSettings("Logging")
+lcAppSettings	= This.getDefaultSettings("AppSettings")
+lcProviders		= This.getDefaultSettings("Providers")
+
+* Generate default xml configuration document
+Text To lcXmlConfig TextMerge NoShow PreText 2
+	<?xml version="1.0"?>
+	<ApplicationConfig>
+		<Logging>
+			<<Iif(Empty(lcLogging), "", lcLogging)>>
+		</Logging>
+		<AppSettings version="<<Iif(Empty(This.AppSettingsVersion), "", Transform(This.AppSettingsVersion))>>">
+			<<Iif(Empty(lcAppSettings), "", lcAppSettings)>>
+		</AppSettings>
+		<Providers>
+			<<Iif(Empty(lcProviders), "", lcProviders)>>
+		</Providers>
+	</ApplicationConfig>
+EndText 
+
+* Write file to disk
+StrToFile(lcXmlConfig, This.ConfigFile, 0)
+
+ENDPROC
+[END METHODS]
+[START RESERVED1]
+Class[END RESERVED1]
+[START RESERVED2]
+1[END RESERVED2]
+[START RESERVED3]
+*createsettingobject Creates a new configuration setting object.
+*createxmldom Creates a new instance of the Msxml dom parser.
+*getdefaultsettings Returns an xml string of defaults for the given configuration setting
+*isvalid Returns true if the currently loaded configuration file is valid
+*loadconfig Loads the current configuration file.
+*loadsection Loads the specified configuration section.
+*loadxml Reads an xml file into a Msxml dom parser.
+*saveconfig Saves the configuration settings to the current configuration file.
+*setdefaultfile Creates a new default configuration file.
+appsettingsversion Version of the application settings configuration section. When CheckAppSettingsVersion is true, this value is checked against the version attribute of the AppSettings node in the configuration file.
+checkappsettingsversion Set this to true to enforce version checking of the AppSettings section of the configuration file.
+configfile Full path and filename of the current application configuration file.
+ixmldomelement Reference to the msxml dom object containing the current configuration file. Set by LoadFile().
+[END RESERVED3]
+[START RESERVED6]
+Pixels[END RESERVED6]
+
+[ RECORD]
+[PLATFORM] COMMENT 
+[UNIQUEID] RESERVED  
+[OBJNAME] configurationblock
+[EOF]
