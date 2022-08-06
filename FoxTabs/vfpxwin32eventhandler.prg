@@ -70,8 +70,8 @@ DEFINE CLASS VFPxWin32EventHandler AS Collection
 			this.hdlDebug = FCREATE("GKKWin32EventHandler.log",0)
 		ENDIF
 		
-		IF !('FoxTabsDeclareAPI' $ SET( 'Procedure' ))
-			SET PROCEDURE TO FoxTabsDeclareAPI ADDITIVE
+		IF !('BINDWINEVENTAPI' $ Upper(SET( 'Procedure' )))
+			SET PROCEDURE TO BindWinEventAPI ADDITIVE
 		ENDIF
 
 		* Store handle for use in CallWindowProc
@@ -98,6 +98,9 @@ DEFINE CLASS VFPxWin32EventHandler AS Collection
 			* Unbinds all events associated with this object. This includes events that are bound 
 			*	to it as an event source and its delegate methods that serve as event handlers.
 			UnBindEvents(thWnd)
+		CASE Pcount() = 2
+			* Unbind specific event/message
+			UnBindEvents(thWnd, tnMessage)
 		CASE Pcount() = 4
 			If !Empty(tnMessage)
 				* Unbind specific event/message
@@ -116,8 +119,10 @@ DEFINE CLASS VFPxWin32EventHandler AS Collection
 				ENDFOR
 			EndIf 
 		Otherwise
-			Assert .f. Message "UnBindEvents requires 1 or 4 parameters. Syntax: " + Chr(13) + Chr(13) + ;
-				"UnBindEvents(oEventObject)" + Chr(13) + "UnBindEvents(thWnd, tnMessage, toEventHandler, tcDelegate)"
+			Assert .f. Message "UnBindEvents requires 1, 2, or 4 parameters. Syntax: " + Chr(13) + Chr(13) + ;
+				"UnBindEvents(oEventObject)" + Chr(13) + ;
+				"UnBindEvents(thWnd, tnMessage)" + Chr(13) + ;
+				"UnBindEvents(thWnd, tnMessage, toEventHandler, tcDelegate)"
 		ENDCASE
 
 		This.CleanupEvents()
@@ -141,7 +146,8 @@ DEFINE CLASS VFPxWin32EventHandler AS Collection
 			
 			* Check if there are any bindings for this Win event
 			For lnRow = 1 to Alen(laWinEvents, 1)
-				If laWinEvents[lnRow,1] = loWinEvent.hWnd and laWinEvents[lnRow,2] = loWinEvent.nMessage
+				If not empty(laWinEvents[lnRow,1]) and laWinEvents[lnRow,1] = loWinEvent.hWnd and ;
+						laWinEvents[lnRow,2] = loWinEvent.nMessage
 					llEventFound = .t.
 					Exit 
 				EndIf 
