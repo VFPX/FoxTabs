@@ -132,10 +132,10 @@ DEFINE CLASS VFPxWin32EventHandler AS Collection
 	* Check all events and remove any objects that are no longer used
 	Procedure CleanupEvents
 		Local array laObjEvents[1,5], laWinEvents[1,4]
-		Local lnItem, loWinEvent as WinEvent of VFPxWin32EventHandler.prg, lnRow, llEventFound
+		Local lnItem, loWinEvent as WinEvent of VFPxWin32EventHandler.prg, lnRow, llEventFound, lnEvents
 		
 		* Array of current Win event bindings
-		AEvents(laWinEvents, 1)
+		lnEvents = AEvents(laWinEvents, 1)
 
 		* For loops don't work well when removing items from collection
 		lnItem = 1
@@ -145,8 +145,8 @@ DEFINE CLASS VFPxWin32EventHandler AS Collection
 			loWinEvent = This.Item(lnItem)
 			
 			* Check if there are any bindings for this Win event
-			For lnRow = 1 to Alen(laWinEvents, 1)
-				If not empty(laWinEvents[lnRow,1]) and laWinEvents[lnRow,1] = loWinEvent.hWnd and ;
+			For lnRow = 1 to lnEvents
+				If laWinEvents[lnRow,1] = loWinEvent.hWnd and ;
 						laWinEvents[lnRow,2] = loWinEvent.nMessage
 					llEventFound = .t.
 					Exit 
