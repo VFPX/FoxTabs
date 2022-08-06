@@ -315,20 +315,42 @@ DEFINE CLASS foxtabcontrol AS container
 				Case "class designer" $ Lower(This.FoxTab.WindowName)
 					* Extract the class name from the VFP naming convention used
 					*	e.g. Class Designer - <library> (<class name>)
-					lcCaption = StrExtract(This.FoxTab.WindowName, "(", ")", 1, 1)
+					Do Case
+					Case "(" $ This.FoxTab.WindowName
+						* Standard VFP format
+						lcCaption = StrExtract(This.FoxTab.WindowName, "(", ")", 1, 1)
+					Case "--" $ This.FoxTab.WindowName
+						* PEM Editor changes window title
+						lcCaption = StrExtract(This.FoxTab.WindowName, "-- ", " of", 1, 1)
+					Otherwise 
+						lcCaption = Trim(This.FoxTab.WindowName)
+					EndCase 
 				
 				Case "designer" $ Lower(This.FoxTab.WindowName) ;
 						Or "project manager" $ Lower(This.FoxTab.WindowName)
-					* Extract the short name from the VFP naming convention used
-					*	e.g. Menu Designer - <menu name>
-					lcCaption = Substr(This.FoxTab.WindowName, At(" - ", This.FoxTab.WindowName) + 3)
-				
+					If "--" $ This.FoxTab.WindowName
+						* PEM Editor changes window title
+						If "\" $ This.FoxTab.WindowName
+							* Contains directory name
+							lcCaption = Substr(This.FoxTab.WindowName, Rat("\", This.FoxTab.WindowName) + 1)
+						Else 
+							lcCaption = Substr(This.FoxTab.WindowName, At(" -- ", This.FoxTab.WindowName) + 4)
+						EndIf 
+					Else 
+						* Extract the short name from the VFP naming convention used
+						*	e.g. Menu Designer - <menu name>
+						lcCaption = Substr(This.FoxTab.WindowName, At(" - ", This.FoxTab.WindowName) + 3)
+					EndIf 		
 				Case "class browser" $ Lower(This.FoxTab.WindowName) ;
 						And At("(", This.FoxTab.WindowName) > 0
 					* Extract the class library from the VFP naming convention used
 					*	e.g. <class library> (<filename>) - Class Browser
 					lcCaption = Substr(This.FoxTab.WindowName, 1, At("(", This.FoxTab.WindowName) - 2)
 				
+				Case InList(Upper(Right(This.FoxTab.WindowName, 3)), "AM)", "PM)")
+					* PEM Editor may add date/time to code editor title
+					lcCaption = Trim(Left(This.FoxTab.WindowName, Rat("(", This.FoxTab.WindowName) - 1))
+					
 				Otherwise
 					* Default to Windows name
 					lcCaption = Trim(This.FoxTab.WindowName)
