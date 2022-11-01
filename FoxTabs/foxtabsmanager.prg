@@ -19,6 +19,7 @@ Define Class FoxTabsManager As Custom
 
 	Add Object FoxTabs As Collection
 	Add Object WindowsEvents As FoxTabsEventHandler
+	Dimension aEventList[1]
 
 	* _____________________________________________________________
 	*
@@ -135,7 +136,7 @@ Define Class FoxTabsManager As Custom
 		Return lcBuffer
 		
 	EndFunc
-
+	
 	Function IsIDEWindow(hWnd As Integer) As Boolean 
 
 		Local oException As Exception
@@ -170,11 +171,11 @@ Define Class FoxTabsManager As Custom
 			lnParentHWnd = GetAncestor(hWnd, GA_PARENT)
 			
 			* Only allow children of _Screen
-			lbReturn = lbReturn And lnParentHWnd = _Screen.hWnd	
+			lbReturn = lbReturn And lnParentHWnd = _Screen.hWnd
 
 			* Check the border style
 			lbReturn = lbReturn And This.HasBorder(hWnd)
-
+			
 		Catch To oException
 			* Set details and throw to caller
 			oException.UserValue = "Unhandled exception caught checking if the hWnd is an IDE Window."
@@ -246,7 +247,13 @@ Define Class FoxTabsManager As Custom
 			If Empty(hWnd)
 				Exit
 			EndIf 
-			
+
+			* Data Environment defers setting of window title when opening
+			* If it is the top window after opening, reload windows so it will show in tabs
+			If Wontop() = "DATA ENVIRONMENT -"
+				oFoxTabs.FoxTabsManager.LoadWindows(_VFP.hWnd)
+			EndIf 
+				
 			* Check if a FoxTab object exists for this hWnd in our collection
 			If Not Empty(This.FoxTabs.GetKey(Transform(hWnd, "@0x")))
 				* Check the window is still a child of _Screen.
@@ -433,6 +440,172 @@ Define Class FoxTabsManager As Custom
 		UnBindWinEvents(0, 0, This.WindowsEvents, "WMEventHandler")
 		
 	EndFunc 	
+	
+	Function IsEvent(lpcWindowName as String) as Logical
+		Local lcEventList, lcMethod, llEvent
+		
+		If Alen(This.aEventList) <= 1				
+			* Event list from VFP Help File
+			Text to lcEventList NoShow
+Activate Event
+AdjustObjectSize Event 
+AfterBand Event 
+AfterBuild Event 
+AfterCloseTables Event 
+AfterCursorAttach Event 
+AfterCursorClose Event 
+AfterCursorDetach Event 
+AfterCursorFill Event 
+AfterCursorRefresh Event 
+AfterCursorUpdate Event 
+AfterDelete Event 
+AfterInsert Event 
+AfterRecordRefresh Event 
+AfterUpdate Event 
+AfterDock Event 
+AfterReport Event 
+AfterRowColChange Event 
+BeforeBand Event 
+BeforeCursorAttach Event 
+BeforeCursorClose Event 
+BeforeCursorDetach Event 
+BeforeCursorFill Event 
+BeforeCursorRefresh Event 
+BeforeCursorUpdate Event 
+BeforeDelete Event 
+BeforeInsert Event 
+BeforeDock Event 
+BeforeOpenTables Event 
+BeforeRecordRefresh Event 
+BeforeReport Event 
+BeforeRowColChange Event 
+BeforeUpdate Event 
+Click Event 
+dbc_Activate Event 
+dbc_AfterAddTable Event 
+dbc_AfterAppendProc Event 
+dbc_AfterCloseTable Event 
+dbc_AfterCopyProc Event 
+dbc_AfterCreateConnection Event 
+dbc_AfterCreateOffline Event 
+dbc_AfterCreateTable Event 
+dbc_AfterCreateView Event 
+dbc_AfterDBGetProp Event 
+dbc_AfterDBSetProp Event 
+dbc_AfterDeleteConnection Event 
+dbc_AfterDropOffline Event 
+dbc_AfterDropTable Event 
+dbc_AfterModifyConnection Event 
+dbc_AfterModifyProc Event 
+dbc_AfterModifyTable Event 
+dbc_AfterModifyView Event 
+dbc_AfterOpenTable Event 
+dbc_AfterRemoveTable Event 
+dbc_AfterRenameConnection Event 
+dbc_AfterRenameTable Event 
+dbc_AfterRenameView Event 
+dbc_AfterValidateData Event 
+dbc_BeforeAddTable Event 
+dbc_BeforeAppendProc Event 
+dbc_BeforeCloseTable Event 
+dbc_BeforeCopyProc Event 
+dbc_BeforeCreateConnection Event 
+dbc_BeforeCreateOffline Event 
+dbc_BeforeCreateTable Event 
+dbc_BeforeCreateView Event 
+dbc_BeforeDBGetProp Event 
+dbc_BeforeDBSetProp Event 
+dbc_BeforeDeleteConnection Event 
+dbc_BeforeDropOffline Event 
+dbc_BeforeDropTable Event 
+dbc_BeforeModifyConnection Event 
+dbc_BeforeModifyProc Event 
+dbc_BeforeModifyTable Event 
+dbc_BeforeModifyView Event 
+dbc_BeforeOpenTable Event 
+dbc_BeforeRemoveTable Event 
+dbc_BeforeRenameConnection Event 
+dbc_BeforeRenameTable Event 
+dbc_BeforeRenameView Event 
+dbc_BeforeValidateData Event 
+dbc_CloseData Event 
+dbc_Deactivate Event 
+dbc_ModifyData Event 
+dbc_OpenData Event 
+dbc_PackData Event 
+DblClick Event 
+Deactivate Event 
+Deleted Event 
+Destroy Event 
+DoCmd Method 
+DownClick Event 
+DragDrop Event 
+DragOver Event 
+DropDown Event 
+Error Event
+ErrorMessage Event 
+EvaluateContents Event 
+GotFocus Event 
+Init Event 
+InteractiveChange Event 
+KeyPress Event 
+Load Event 
+LoadReport Event 
+LostFocus Event 
+Message Event 
+MiddleClick Event 
+MouseDown Event 
+MouseEnter Event 
+MouseLeave Event 
+MouseMove Event 
+MouseUp Event 
+MouseWheel Event 
+Moved Event 
+OLECompleteDrag Event 
+OLEDragOver Event 
+OLEGiveFeedback Event 
+OLESetData Event 
+OLEStartDrag Event 
+OnMoveItem Event 
+Paint Event 
+ProgrammaticChange Event 
+QueryAddFile Event 
+QueryModifyFile Event 
+QueryNewFile Event 
+QueryRemoveFile Event 
+QueryRunFile Event 
+QueryUnload Event 
+RangeHigh Event 
+RangeLow Event 
+ReadActivate Event 
+ReadDeactivate Event 
+ReadShow Event 
+ReadValid Event 
+ReadWhen Event 
+Resize Event 
+RightClick Event 
+SCCInit Event 
+SCCDestroy Event 
+Scrolled Event 
+Timer Event 
+UIEnable Event 
+UnDock Event 
+Unload Event 
+UnloadReport Event 
+UpClick Event 
+Valid Event 
+When Event 
+			EndText 
+			ALines(This.aEventList, Lower(Strtran(lcEventList, " Event", "")), 1)
+		EndIf 
+		lcMethod = Lower(GetWordNum(lpcWindowName, GetWordCount(lpcWindowName, "."), "."))
+		* Remove [Read Only]
+		If "[read only]" $ lcMethod 
+			lcMethod = Strtran(lcMethod, "[read only]", "")
+		EndIf 
+		llEvent = (Ascan(This.aEventList, lcMethod, 1, 0, 0, 2 + 4) > 0)
+		Return llEvent
+	EndFunc
 
 	* _____________________________________________________________
 	*
@@ -491,7 +664,9 @@ Define Class FoxTab As Custom
 	
 	Function GetContentType(lpcWindowName As String) As String
 
-		Local lcContentType As String
+		Local lcContentType As String, lnWindowType as Integer
+
+		lnWindowType = This.GetWindowType(Val(This.hWnd))
 		
 		* [TODO] Complete remaining content types
 		Do Case
@@ -526,9 +701,31 @@ Define Class FoxTab As Custom
 			Case "query designer" $ Lower(lpcWindowName)
 				lcContentType = "QPX"			
 				
-			Case Used(lpcWindowName)
+			Case "data environment" $ Lower(lpcWindowName)
+				lcContentType = "DATAENV"			
+
+			Case This.IsUsed(lpcWindowName)
 				lcContentType = "DBF"			
+
+			Case lnWindowType = 1
+				lcContentType = "PRG"
 				
+			Case lnWindowType = 2
+				lcContentType = "TXT"
+				
+			Case lnWindowType = 3
+				lcContentType = "MEMO"				
+				
+			Case lnWindowType = 10
+				If oFoxTabs.FoxTabsManager.IsEvent(lpcWindowName)
+					lcContentType = "EVENT"
+				Else
+					lcContentType = "METHOD"
+				EndIf 
+				
+			Case lnWindowType = 12
+				lcContentType = "CUR"
+
 			Otherwise
 				* Check if the window name contains the name of the file
 				lpcWindowName = STRTRAN(lpcWindowName, ' ', '')
@@ -542,10 +739,34 @@ Define Class FoxTab As Custom
 				EndIf 
 				
 		EndCase 
-		
+
 		Return lcContentType 
 	
 	EndFunc  	
+	
+	Function GetWindowType(hWnd As Integer) As Integer
+
+		Local lnWHandle as Integer, lnWindowType as Integer
+		Local Array laEnv[25]	
+
+		* Get editor window type using FoxTools
+		* Editor Session – The editor session is as follows:
+		* 0 – Command Window
+		* 1 – Program file (MODIFY COMMAND)
+		* 2 – Text Editor (MODIFY FILE)
+		* 3 - Memo field
+		* 8 – Menu code edit window
+		* 10 – Method code edit window of the Class or Form Designer
+		* 12 – Stored procedure in a DBC (MODIFY PROCEDURE)
+		If Not 'FOXTOOLS.FLL' $ Upper (Set ('Library'))
+			Set Library To (Home() + 'FoxTools.Fll') Additive
+		EndIf
+		lnWHandle = Sys(2326, hWnd)
+		_EdGetEnv(lnWHandle, @laEnv)
+		lnWindowType = laEnv[25]
+
+		Return lnWindowType		
+	EndFunc	
 	
 	Function GetAssociatedIcon(lpcContentType As String) As String
 
@@ -555,7 +776,7 @@ Define Class FoxTab As Custom
 		Do Case
 			Case lpcContentType = "VCX"
 				lcAssociatedIcon = "icoClass"
-	
+				
 			Case lpcContentType = "CUR"
 				lcAssociatedIcon = "icoCursor"
 	
@@ -592,6 +813,18 @@ Define Class FoxTab As Custom
 			Case InList(lpcContentType, "XSL", "XSLT")
 				lcAssociatedIcon = "icoXsl"
 	
+			Case lpcContentType = "METHOD"
+				lcAssociatedIcon = "icoMethod"
+
+			Case lpcContentType = "EVENT"
+				lcAssociatedIcon = "icoEvent"
+
+			Case lpcContentType = "DATAENV"
+				lcAssociatedIcon = "icoDataEnvironment"
+
+			Case lpcContentType = "MEMO"
+				lcAssociatedIcon = "icoEdit"
+
 			Otherwise
 				lcAssociatedIcon = "icoVfp"
 				
@@ -600,7 +833,28 @@ Define Class FoxTab As Custom
 		Return lcAssociatedIcon 
 	
 	EndFunc
-		
+	
+	Function IsUsed(lpcWindowName as String) as Logical
+		* Check all datasessions to see if name is used
+		Local Array laSessions[1]
+		Local lnSession, llUsed
+
+		Try 			
+			llUsed = .f.
+			Asessions(laSessions)
+			For Each lnSession in laSessions
+				Set Datasession To (lnSession)
+				If Used(lpcWindowName)
+					llUsed = .t.
+					Exit 
+				EndIf
+			EndFor 
+		Finally
+			Set Datasession To (oFoxTabs.DataSession.DataSessionID)  
+		EndTry		
+		Return llUsed
+	EndFunc
+
 EndDefine 
 
 * _________________________________________________________________
@@ -703,7 +957,7 @@ Define Class FoxTabsEventHandler As Custom
 					* Bind to these events so we can add it to our collection
 					BindWinEvent(hWnd, WM_SHOWWINDOW, This, "WMEventHandler", 4)
 					BindWinEvent(hWnd, WM_SETTEXT, This, "WMEventHandler", 4)
-				
+					
 				Case Msg = WM_ACTIVATE
 					* Rebind WM_CREATE event after unbound above
 					UnBindWinEvents(0, WM_ACTIVATE, This, "WMEventHandler")

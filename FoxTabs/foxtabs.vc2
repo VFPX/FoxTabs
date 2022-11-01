@@ -347,6 +347,9 @@ DEFINE CLASS foxtabcontrol AS container
 					*	e.g. <class library> (<filename>) - Class Browser
 					lcCaption = Substr(This.FoxTab.WindowName, 1, At("(", This.FoxTab.WindowName) - 2)
 				
+				Case Lower(This.FoxTab.WindowName) = "data environment -"
+					lcCaption = "DataEnv -" + Substr(This.FoxTab.WindowName, 19)
+		
 				Case InList(Upper(Right(This.FoxTab.WindowName, 3)), "AM)", "PM)")
 					* PEM Editor may add date/time to code editor title
 					lcCaption = Trim(Left(This.FoxTab.WindowName, Rat("(", This.FoxTab.WindowName) - 1))
@@ -360,6 +363,11 @@ DEFINE CLASS foxtabcontrol AS container
 		
 		* Display full window title in tooltip
 		This.lblWindowName.ToolTipText = Trim(This.FoxTab.WindowName)
+		
+		* Remove [Read Only]
+		If "[Read Only]" $ lcCaption
+			lcCaption = Strtran(lcCaption, "[Read Only]", "")
+		EndIf 
 		
 		* Check the maximum FoxTab caption size
 		lnMaxChars = Val(oFoxTabs.Configuration("AppSettings.MaxChars").Value)

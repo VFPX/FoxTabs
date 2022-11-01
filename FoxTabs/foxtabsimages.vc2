@@ -45,12 +45,42 @@ DEFINE CLASS icodatabase AS foxtabicon OF "foxtabs.vcx"
 
 ENDDEFINE
 
+DEFINE CLASS icodataenvironment AS foxtabicon OF "foxtabs.vcx" 
+ 	*< CLASSDATA: Baseclass="image" Timestamp="" Scale="Pixels" Uniqueid="" />
+
+	Height = 16
+	Name = "icodataenvironment"
+	Picture = images\icons\dataenvironment.bmp
+	Width = 16
+
+ENDDEFINE
+
 DEFINE CLASS icodesktop AS foxtabicon OF "foxtabs.vcx" 
  	*< CLASSDATA: Baseclass="image" Timestamp="" Scale="Pixels" Uniqueid="" />
 
 	Height = 16
 	Name = "icodummy"
 	Picture = images\icons\desktop.png
+	Width = 16
+
+ENDDEFINE
+
+DEFINE CLASS icoedit AS foxtabicon OF "foxtabs.vcx" 
+ 	*< CLASSDATA: Baseclass="image" Timestamp="" Scale="Pixels" Uniqueid="" />
+
+	Height = 13
+	Name = "icoedit"
+	Picture = images\icons\edit.bmp
+	Width = 16
+
+ENDDEFINE
+
+DEFINE CLASS icoevent AS foxtabicon OF "foxtabs.vcx" 
+ 	*< CLASSDATA: Baseclass="image" Timestamp="" Scale="Pixels" Uniqueid="" />
+
+	Height = 16
+	Name = "icoevent"
+	Picture = images\icons\event.bmp
 	Width = 16
 
 ENDDEFINE
@@ -91,6 +121,16 @@ DEFINE CLASS icomenu AS foxtabicon OF "foxtabs.vcx"
 	Height = 16
 	Name = "icolibrary"
 	Picture = images\icons\menu.bmp
+	Width = 16
+
+ENDDEFINE
+
+DEFINE CLASS icomethod AS foxtabicon OF "foxtabs.vcx" 
+ 	*< CLASSDATA: Baseclass="image" Timestamp="" Scale="Pixels" Uniqueid="" />
+
+	Height = 16
+	Name = "icomethod"
+	Picture = images\icons\method.bmp
 	Width = 16
 
 ENDDEFINE
