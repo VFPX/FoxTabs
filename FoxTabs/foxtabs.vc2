@@ -237,7 +237,7 @@ DEFINE CLASS foxtabcontrol AS container
 	PROCEDURE seticon		&& sets the tab icon corresponding to the type of file in the window.
 		* Set the associated icon
 		
-		Local lcIconClass As String
+		Local lcIconClass As String, lcIcon as String
 		
 		* Gather the icon class we set when the FoxTab object was created
 		lcIconClass = This.FoxTab.AssociatedIcon
@@ -256,6 +256,15 @@ DEFINE CLASS foxtabcontrol AS container
 		
 		* Add a new instance of the associated icon control
 		This.NewObject("imgIcon", lcIconClass, "FoxTabsImages.vcx")
+		If lcIconClass = "icoFormRun"
+			* Try to use icon from running form
+			lcIcon = This.FoxTab.GetFormIcon(Val(This.FoxTab.hWnd))
+			If File(lcIcon)
+				This.imgIcon.Picture = lcIcon
+				This.imgIcon.Height = 16
+				This.imgIcon.Width = 16
+			EndIf 
+		EndIf 
 		
 		* Position and anchor icon control
 		With This.imgIcon As Image

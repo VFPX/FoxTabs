@@ -95,6 +95,17 @@ DEFINE CLASS icoform AS foxtabicon OF "foxtabs.vcx"
 
 ENDDEFINE
 
+DEFINE CLASS icoformrun AS foxtabicon OF "foxtabs.vcx" 
+ 	*< CLASSDATA: Baseclass="image" Timestamp="" Scale="Pixels" Uniqueid="" />
+
+	Height = 16
+	Name = "icoformrun"
+	Picture = images\icons\vfp.gif
+	Stretch = 1
+	Width = 16
+
+ENDDEFINE
+
 DEFINE CLASS icoformset AS foxtabicon OF "foxtabs.vcx" 
  	*< CLASSDATA: Baseclass="image" Timestamp="" Scale="Pixels" Uniqueid="" />
 
@@ -151,6 +162,16 @@ DEFINE CLASS icoproject AS foxtabicon OF "foxtabs.vcx"
 	Height = 16
 	Name = "icocustom"
 	Picture = images\icons\project.bmp
+	Width = 17
+
+ENDDEFINE
+
+DEFINE CLASS icoquery AS foxtabicon OF "foxtabs.vcx" 
+ 	*< CLASSDATA: Baseclass="image" Timestamp="" Scale="Pixels" Uniqueid="" />
+
+	Height = 15
+	Name = "icoquery"
+	Picture = images\icons\query.bmp
 	Width = 17
 
 ENDDEFINE

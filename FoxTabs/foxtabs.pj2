@@ -77,6 +77,7 @@ WITH loProject.FILES
 	.ADD('images\icons\method.bmp')		&& *< FileMetadata: Type="x" Cpid="0" Timestamp="0" ID="0" ObjRev="0" User="" />
 	.ADD('images\icons\program.bmp')		&& *< FileMetadata: Type="x" Cpid="1252" Timestamp="0" ID="0" ObjRev="0" User="" />
 	.ADD('images\icons\project.bmp')		&& *< FileMetadata: Type="x" Cpid="1252" Timestamp="0" ID="0" ObjRev="0" User="" />
+	.ADD('images\icons\query.bmp')		&& *< FileMetadata: Type="x" Cpid="0" Timestamp="0" ID="0" ObjRev="0" User="" />
 	.ADD('images\icons\report.bmp')		&& *< FileMetadata: Type="x" Cpid="1252" Timestamp="0" ID="0" ObjRev="0" User="" />
 	.ADD('images\icons\scrap.bmp')		&& *< FileMetadata: Type="x" Cpid="1252" Timestamp="0" ID="0" ObjRev="0" User="" />
 	.ADD('images\icons\solution.gif')		&& *< FileMetadata: Type="x" Cpid="1252" Timestamp="0" ID="0" ObjRev="0" User="" />

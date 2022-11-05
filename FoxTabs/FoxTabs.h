@@ -312,3 +312,19 @@
 #define SW_SHOWNA  				8 
 #define SW_SHOWNOACTIVATE  		4 
 #define SW_SHOWNORMAL  			1 
+
+* Window Type returned from FoxTools _EdGetEnv defined in pro_ext.h
+* Includes some not in documentation
+#define EDCOMMAND		0
+#define EDSCRIP			EDCOMMAND
+#define EDPROGRAM		1
+#define EDFILE			2
+#define EDMEMO			3
+#define EDQUERY			6
+#define EDSCREEN		7
+#define EDMENU			8
+#define EDVIEW			9
+#define EDSNIP		   10
+#define EDTEXT		   11
+#define EDPROC		   12
+#define EDPROJTEXT     13

@@ -603,6 +603,10 @@ When Event
 		If "[read only]" $ lcMethod 
 			lcMethod = Strtran(lcMethod, "[read only]", "")
 		EndIf 
+		* Asterisk in view parent code window
+		If "*" $ lcMethod 
+			lcMethod = Strtran(lcMethod, "*", "")
+		EndIf 		
 		llEvent = (Ascan(This.aEventList, lcMethod, 1, 0, 0, 2 + 4) > 0)
 		Return llEvent
 	EndFunc
@@ -668,7 +672,6 @@ Define Class FoxTab As Custom
 
 		lnWindowType = This.GetWindowType(Val(This.hWnd))
 		
-		* [TODO] Complete remaining content types
 		Do Case
 			Case Empty(lpcWindowName)	&& should not occur
 				lcContentType = "VFP"			
@@ -699,31 +702,55 @@ Define Class FoxTab As Custom
 				lcContentType = "LBX"			
 				
 			Case "query designer" $ Lower(lpcWindowName)
-				lcContentType = "QPX"			
+				lcContentType = "QPX"		
+
+			Case "view designer" $ Lower(lpcWindowName)
+				lcContentType = "VIEW"					
 				
 			Case "data environment" $ Lower(lpcWindowName)
 				lcContentType = "DATAENV"			
 
+			Case This.IsForm(Val(This.hwnd))
+				lcContentType = "FORM"			
+
 			Case This.IsUsed(lpcWindowName)
 				lcContentType = "DBF"			
 
-			Case lnWindowType = 1
+			Case lnWindowType = EDPROGRAM
+				* 1 – Program file (MODIFY COMMAND)
 				lcContentType = "PRG"
 				
-			Case lnWindowType = 2
+			Case lnWindowType = EDFILE
+				* 2 – Text Editor (MODIFY FILE)
 				lcContentType = "TXT"
 				
-			Case lnWindowType = 3
+			Case lnWindowType = EDMEMO
+				* 3 - Memo field
 				lcContentType = "MEMO"				
+
+			Case lnWindowType = EDQUERY
+				* 6 - Query
+				lcContentType = "QPX"				
 				
-			Case lnWindowType = 10
+			Case lnWindowType = EDMENU
+				* 8 - Menu
+				lcContentType = "MNX"	
+
+			Case lnWindowType = EDVIEW
+				* 9 - View
+				lcContentType = "VIEW"	
+				
+			Case InList(lnWindowType, EDSNIP, EDTEXT)
+				* 10 – Method code edit window of the Class or Form Designer
+				* 11 - View parent code of method
 				If oFoxTabs.FoxTabsManager.IsEvent(lpcWindowName)
 					lcContentType = "EVENT"
 				Else
 					lcContentType = "METHOD"
 				EndIf 
 				
-			Case lnWindowType = 12
+			Case lnWindowType = EDPROC
+				* 12 - Stored procedure in a DBC (MODIFY PROCEDURE)
 				lcContentType = "CUR"
 
 			Otherwise
@@ -757,13 +784,18 @@ Define Class FoxTab As Custom
 		* 3 - Memo field
 		* 8 – Menu code edit window
 		* 10 – Method code edit window of the Class or Form Designer
+		* 11 - View parent code of method
 		* 12 – Stored procedure in a DBC (MODIFY PROCEDURE)
 		If Not 'FOXTOOLS.FLL' $ Upper (Set ('Library'))
 			Set Library To (Home() + 'FoxTools.Fll') Additive
 		EndIf
 		lnWHandle = Sys(2326, hWnd)
-		_EdGetEnv(lnWHandle, @laEnv)
-		lnWindowType = laEnv[25]
+		If _EdGetEnv(lnWHandle, @laEnv) = 1
+			lnWindowType = laEnv[25]
+		Else
+			* Not editor window
+			lnWindowType = 0
+		EndIf 
 
 		Return lnWindowType		
 	EndFunc	
@@ -812,6 +844,9 @@ Define Class FoxTab As Custom
 	
 			Case InList(lpcContentType, "XSL", "XSLT")
 				lcAssociatedIcon = "icoXsl"
+				
+			Case InList(lpcContentType, "QPX", "VIEW")
+				lcAssociatedIcon = "icoQuery"				
 	
 			Case lpcContentType = "METHOD"
 				lcAssociatedIcon = "icoMethod"
@@ -824,6 +859,10 @@ Define Class FoxTab As Custom
 
 			Case lpcContentType = "MEMO"
 				lcAssociatedIcon = "icoEdit"
+
+			Case lpcContentType = "FORM"
+				* Running form, not form designer
+				lcAssociatedIcon = "icoFormRun"
 
 			Otherwise
 				lcAssociatedIcon = "icoVfp"
@@ -854,7 +893,42 @@ Define Class FoxTab As Custom
 		EndTry		
 		Return llUsed
 	EndFunc
-
+	
+	Function IsForm(hWnd As Integer) As Logical
+		* Returns .T. if window is running form (not form designer)
+		Local llForm, lnFormCount, lnForm
+		llForm = .f.
+		lnFormCount = _Screen.FormCount
+		For lnForm = 1 to lnFormCount
+			Try
+				If _Screen.Forms(lnForm).hWnd = hWnd
+					llForm = .t.
+					Exit
+				EndIf 
+			Catch
+				* Ignore errors
+			EndTry
+		EndFor 
+		Return llForm
+	EndFunc 
+	
+	Function GetFormIcon(hWnd As Integer) As Logical
+		* Returns .T. if window is running form (not form designer)
+		Local lcIcon, lnFormCount, lnForm
+		lcIcon = ""
+		lnFormCount = _Screen.FormCount
+		For lnForm = 1 to lnFormCount
+			Try
+				If _Screen.Forms(lnForm).hWnd = hWnd
+					lcIcon = _Screen.Forms(lnForm).Icon
+					Exit
+				EndIf 
+			Catch
+				* Ignore errors
+			EndTry
+		EndFor 
+		Return lcIcon
+	EndFunc 
 EndDefine 
 
 * _________________________________________________________________
