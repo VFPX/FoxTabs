@@ -1,0 +1,5 @@
+appName = FoxTabs
+appID = FoxTabs
+majorVersion = 1.3
+excludeFiles = *.bak,*.bat,*.fxp,tempview.*,temptext.*,README.md,.gitignore
+excludeFolders = *Docs*,*FoxBin2PRG*,*ThorUpdater*
