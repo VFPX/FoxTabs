@@ -1,3 +1,5 @@
+#Define	ccThorToolName 'Thor_Tool_FoxTabs'
+
 lparameters toUpdateObject
 local lcAppName, ;
 	lcAppID, ;
@@ -50,7 +52,7 @@ Text to lcRegisterWithThor NoShow TextMerge
         .Prompt        = 'FoxTabs'
         
         * Optional
-        .Description   = 'DataTabs'
+        .Description   = 'FoxTabs'
 
         * These are used to group and sort tools when they are displayed in menus or the Thor form
         .Category      = 'Applications'
@@ -65,12 +67,13 @@ Do ('##InstallFolder##FoxTabs.APP')
     Endwith
     
 EndText
+lcRegisterWithThor = Strtran(lcRegisterWithThor, '@@@')
 
 * Set the properties of the passed updater object. You likely won't need to edit this code.
 
 with toUpdateObject
 	.ApplicationName      = lcAppName
-	.Component            = 'Yes'
+	.Component            = 'No'
 	.VersionLocalFilename = lcAppID + 'VersionFile.txt'
 	.RegisterWithThor     = lcRegisterWithThor
 	.VersionFileURL       = lcVersionFileURL
