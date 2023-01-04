@@ -1,5 +1,12 @@
 # FoxTabs Version History
 
+## Version 1.3
+*Released 01/03/2023*
+
+- BindWinEvent was extracted to a separate repository, and some fixes were applied.
+- Fixed compatibility issues with PEM Editor (some tabs had no label).
+- Improved window type detection and tab icons.
+
 ## Version 1.2
 *Released 10/26/2014*
 
